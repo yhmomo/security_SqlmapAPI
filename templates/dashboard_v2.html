@@ -167,9 +167,9 @@
             type: 'doughnut',
             data: {
                 labels: {{ risk_labels|tojson }},
-                datasets: [{
+                [{
                     data: {{ risk_values }},
-                    backgroundColor: [
+                    [
                         '#FF6384', // 高危
                         '#FFCE56', // 中危
                         '#2ED573'  // 低危
@@ -178,53 +178,53 @@
                     cutout: '70%'
                 }]
             },
-            options: {
-                responsive: true,
+            {
+                true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        position: 'right',
+                    {
+                        'right',
                         labels: {
-                            boxWidth: 15,
+                            15,
                             padding: 20
                         }
                     }
                 }
             }
-        });
+        })
 
         // 漏洞类型水平柱状图
         new Chart(document.getElementById('vulnChart'), {
             type: 'bar',
             data: {
                 labels: {{ vuln_labels|tojson }},
-                datasets: [{
+                [{
                     label: '漏洞数量',
                     data: {{ vuln_values }},
-                    backgroundColor: '#00C1D4',
+                    '#00C1D4',
                     borderRadius: 6,
                     barThickness: 28
                 }]
             },
-            options: {
-                indexAxis: 'y',
+            {
+                'y',
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    x: {
-                        beginAtZero: true,
-                        grid: { display: false },
-                        ticks: { stepSize: 1 }
+                    {
+                        true,
+                        grid: { false },
+                        { 1 }
                     },
-                    y: {
-                        grid: { display: false }
+                    {
+                        { false }
                     }
                 },
-                plugins: {
-                    legend: { display: false }
+                {
+                    { false }
                 }
             }
-        });
+        })
     </script>
 </body>
 </html>

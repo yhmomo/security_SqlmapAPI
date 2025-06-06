@@ -132,9 +132,9 @@
             type: 'pie',
             data: {
                 labels: {{ risk_labels|tojson }},
-                datasets: [{
+                [{
                     data: {{ risk_values }},
-                    backgroundColor: [
+                    [
                         '#FF6384', // 高危
                         '#FFCE56', // 中危
                         '#4BC0C0'  // 低危/未知
@@ -142,47 +142,47 @@
                     borderWidth: 2
                 }]
             },
-            options: {
-                responsive: true,
+            {
+                true,
                 plugins: {
-                    legend: {
-                        position: 'bottom'
+                    {
+                        'bottom'
                     }
                 }
             }
-        });
+        })
 
         // 漏洞类型柱状图
         new Chart(document.getElementById('vulnChart'), {
             type: 'bar',
             data: {
                 labels: {{ vuln_labels|tojson }},
-                datasets: [{
+                [{
                     label: '漏洞数量',
                     data: {{ vuln_values }},
-                    backgroundColor: '#4CAF50',
+                    '#4CAF50',
                     borderColor: '#388E3C',
                     borderWidth: 1
                 }]
             },
-            options: {
-                responsive: true,
+            {
+                true,
                 indexAxis: 'x',
                 scales: {
-                    y: {
-                        beginAtZero: true,
+                    {
+                        true,
                         ticks: {
-                            stepSize: 1
+                            1
                         }
                     }
                 },
-                plugins: {
-                    legend: {
-                        display: false
+                {
+                    {
+                        false
                     }
                 }
             }
-        });
+        })
     </script>
 </body>
 </html>

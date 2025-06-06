@@ -14,6 +14,7 @@ from 端口扫描 import IPdaunko
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
+
 def display_menu():
     print(" === 网络安全扫描系统 === ")
     print("1. IP存活扫描")
@@ -25,11 +26,13 @@ def display_menu():
     print("0. 退出系统")
     print("=======================")
 
+
 def run_flask():
     """在新线程中运行Flask应用"""
     print("\n正在启动Web仪表盘...")
     print("访问地址: http://localhost:5000")
     app.run(debug=False, use_reloader=False)  # 关闭调试模式避免双重启动
+
 
 def main():
     while True:
@@ -67,6 +70,7 @@ def main():
         else:
             print("无效的选择，请重新输入。")
         input("\n按回车键继续...")
+
 
 if __name__ == "__main__":
     main()

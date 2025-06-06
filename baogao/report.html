@@ -1,0 +1,64 @@
+
+        <html>
+            <head>
+             <meta charset="UTF-8">
+                <title>扫描报告 - 192.168.75.130</title>
+                <style>
+                    .report { max-width: 1200px; margin: 20px auto; padding: 30px; }
+                    .chart { margin: 40px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+                    img { width: 100%; border-radius: 8px; }
+                    h2 { color: #2c3e50; border-bottom: 2px solid #3498db; }
+                </style>
+            </head>
+            <body>
+                <div class="report">
+                    <h2>漏洞扫描报告</h2>
+                    <p>扫描目标：<code>http://192.168.75.130/MCIR/sqlol/select.php?sanitization_level=none&sanitization_type=keyword&sanitization_params=&query_results=all_rows&error_level=verbose&inject_string=1&location=where_string&submit=Inject%21</code></p>
+                    <p>扫描时间：2025-03-30 13:57</p>
+
+                    <div class="chart">
+                        <h3>漏洞类型分布</h3>
+                        <img src='vuln_type_distribution.png'>
+                    </div>
+
+                    <div class="chart">
+                        <h3>参数风险分析</h3>
+                        <img src='param_heatmap.png'>
+                    </div>
+
+                    <h3>详细漏洞列表</h3>
+                    <table border="1" class="dataframe dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>parameter</th>
+      <th>vuln_type</th>
+      <th>risk_level</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>inject_string</td>
+      <td>OR boolean-based blind - WHERE or HAVING clause (NOT - MySQL comment)</td>
+      <td>低危</td>
+    </tr>
+    <tr>
+      <td>inject_string</td>
+      <td>MySQL &gt;= 5.0 AND error-based - WHERE, HAVING, ORDER BY or GROUP BY clause (FLOOR)</td>
+      <td>中危</td>
+    </tr>
+    <tr>
+      <td>inject_string</td>
+      <td>MySQL &gt;= 5.0.12 AND time-based blind (query SLEEP)</td>
+      <td>高危</td>
+    </tr>
+    <tr>
+      <td>inject_string</td>
+      <td>MySQL UNION query (NULL) - 1 to 20 columns</td>
+      <td>未知</td>
+    </tr>
+  </tbody>
+</table>
+                </div>
+            </body>
+        </html>
+        

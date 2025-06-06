@@ -1,0 +1,230 @@
+<!-- templates/dashboard_v2.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全态势感知中心</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+    :root {
+        --primary-color: #2A2E35;
+        --secondary-color: #00C1D4;
+        --accent-color: #FF6B6B;
+        --background: #F8F9FA;
+        --card-bg: #FFFFFF;
+    }
+
+    body {
+        background: var(--background);
+        font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .status-header {
+        background: var(--primary-color);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+
+    .metric-card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        transition: transform 0.2s;
+    }
+
+    .metric-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .chart-container {
+        height: 380px;
+        position: relative;
+    }
+
+    .vulnerability-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .vuln-card {
+        background: var(--card-bg);
+        border-left: 4px solid;
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .vuln-card.critical {
+        border-color: #FF4757;
+        background: #FFF5F5;
+    }
+
+    .vuln-card.high {
+        border-color: #FFA502;
+        background: #FFF4E6;
+    }
+
+    .vuln-card.medium {
+        border-color: #2ED573;
+        background: #F5FFF9;
+    }
+
+    .badge {
+        font-size: 0.8em;
+        padding: 0.4em 0.8em;
+        border-radius: 20px;
+    }
+</style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- 状态概览 -->
+        <div class="status-header">
+            <div>
+                <h3><i class="fas fa-shield-alt"></i> 安全态势概览</h3>
+                <p class="mb-0 text-muted">最后扫描时间：{{ scan_info.time }}</p>
+            </div>
+            <div class="text-center">
+                <h2 class="mb-1">{{ scan_info.total }}</h2>
+                <p class="mb-0">累计漏洞数量</p>
+            </div>
+            <div class="text-end">
+                <h5 class="mb-1">{{ scan_info.target }}</h5>
+                <p class="mb-0 text-muted">监控目标地址</p>
+            </div>
+        </div>
+
+        <!-- 第一行图表 -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-8">
+                <div class="metric-card">
+                    <h5 class="mb-3"><i class="fas fa-chart-bar"></i> 漏洞类型分布</h5>
+                    <div class="chart-container">
+                        <canvas id="vulnChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="metric-card">
+                    <h5 class="mb-3"><i class="fas fa-exclamation-triangle"></i> 风险等级分布</h5>
+                    <div class="chart-container">
+                        <canvas id="riskChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第二行统计 -->
+        <div class="row g-4 mb-4">
+            <div class="col-12">
+                <div class="metric-card">
+                    <h5 class="mb-3"><i class="fas fa-list-ol"></i> 漏洞列表</h5>
+                    <div class="vulnerability-grid">
+                        {% for vuln in vulnerabilities %}
+                        <div class="vuln-card {{ 'critical' if vuln.risk_level == '高危' else 'high' if vuln.risk_level == '中危' else 'medium' }}">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <strong>{{ vuln.parameter }}</strong>
+                                <span class="badge
+                                    {% if vuln.risk_level == '高危' %}bg-danger
+                                    {% elif vuln.risk_level == '中危' %}bg-warning
+                                    {% else %}bg-success{% endif %}">
+                                    {{ vuln.risk_level }}
+                                </span>
+                            </div>
+                            <p class="mb-1 text-muted small">{{ vuln.vuln_type }}</p>
+                            <div class="text-end small text-muted">
+                                <i class="fas fa-database"></i> {{ vuln.dbms|default('N/A') }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 风险等级环形图
+        new Chart(document.getElementById('riskChart'), {
+            type: 'doughnut',
+            data: {
+                labels: {{ risk_labels|tojson }},
+                datasets: [{
+                    data: {{ risk_values }},
+                    backgroundColor: [
+                        '#FF6384', // 高危
+                        '#FFCE56', // 中危
+                        '#2ED573'  // 低危
+                    ],
+                    borderWidth: 0,
+                    cutout: '70%'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            boxWidth: 15,
+                            padding: 20
+                        }
+                    }
+                }
+            }
+        });
+
+        // 漏洞类型水平柱状图
+        new Chart(document.getElementById('vulnChart'), {
+            type: 'bar',
+            data: {
+                labels: {{ vuln_labels|tojson }},
+                datasets: [{
+                    label: '漏洞数量',
+                    data: {{ vuln_values }},
+                    backgroundColor: '#00C1D4',
+                    borderRadius: 6,
+                    barThickness: 28
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: { display: false },
+                        ticks: { stepSize: 1 }
+                    },
+                    y: {
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
